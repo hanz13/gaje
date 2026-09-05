@@ -1,6 +1,6 @@
 export const RANDOM_THOUGHTS = [
   "scrolling reels 3 jam cuma buat nyari rasa tenang yang ga kunjung dateng.",
-  "kirim cv ke 100 perusahaan, yang gercep ngebales cuma pinjol sama spam wa.",
+  "kirim cv ke 100 perusahaan, yang gercep ngebales cuma pinjol sama notif paylater.",
   "pengen kaya tapi males kerja, giliran kerja gajinya cuma numpang lewat doang.",
   "takut ketinggalan tren, tapi pas ngikutin malah capek sendiri.",
   "quarter life crisis tapi saldo m-banking masih 47 ribu perak.",
