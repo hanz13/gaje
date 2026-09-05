@@ -18,13 +18,16 @@ import {
 
 const FEELING_OPTIONS = [
   'entahlah.',
-  'hampa.',
-  'bingung.',
   'capek.',
+  'hampa.',
+  'kesepian.',
+  'kosong.',
+  'bingung.',
   'biasa aja.',
+  'patah hati.',
   'campur aduk.',
-  'ya gitu.',
-  'kosong.'
+  'ya gitu deh.'
+  
 ];
 
 const TIME_SNIPPETS = ['??:??', '03:17', '02:37', '04:04', '01:59', '??:??'];
