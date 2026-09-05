@@ -35,7 +35,7 @@ export default function RandomThought() {
       <div className="absolute -bottom-[1px] -right-[1px] w-1.5 h-1.5 border-b border-r border-[#555555]" />
 
       <p className="text-[11px] font-mono tracking-widest text-[#666666] mb-3 select-none">
-        isi kepala saat ini:
+        isi kepala gue sekarang:
       </p>
 
       <div className="space-y-1 text-xs font-mono text-[#888888] tracking-wide select-none">
