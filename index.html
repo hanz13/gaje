@@ -2,6 +2,33 @@
 <html lang="id" class="dark">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (function() {
+        try {
+          var _f = window.fetch;
+          if (typeof _f === 'function') {
+            try {
+              Object.defineProperty(window, 'fetch', {
+                get: function() { return _f; },
+                set: function(fn) { _f = fn; },
+                configurable: true,
+                enumerable: true
+              });
+            } catch (e) {}
+            if (typeof Window !== 'undefined' && Window.prototype) {
+              try {
+                Object.defineProperty(Window.prototype, 'fetch', {
+                  get: function() { return _f; },
+                  set: function(fn) { _f = fn; },
+                  configurable: true,
+                  enumerable: true
+                });
+              } catch (e2) {}
+            }
+          }
+        } catch (err) {}
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>gaje.lol — ini bukan website.</title>
     <meta name="description" content="tempat kecil buat pikiran yang lagi ga jelas." />

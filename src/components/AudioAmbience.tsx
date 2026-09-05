@@ -1,142 +1,206 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
+import { YOUTUBE_VIDEO_ID } from '../data/music';
+
+interface YTPlayer {
+  playVideo: () => void;
+  pauseVideo: () => void;
+  mute: () => void;
+  unMute: () => void;
+  isMuted: () => boolean;
+  setVolume: (volume: number) => void;
+  getPlayerState: () => number;
+  destroy: () => void;
+}
+
+declare global {
+  interface Window {
+    YT: {
+      Player: new (
+        elementId: string,
+        config: {
+          videoId: string;
+          playerVars?: Record<string, unknown>;
+          events?: {
+            onReady?: (event: { target: YTPlayer }) => void;
+            onStateChange?: (event: { data: number; target: YTPlayer }) => void;
+            onError?: (event: unknown) => void;
+          };
+        }
+      ) => YTPlayer;
+      PlayerState: {
+        PLAYING: number;
+        ENDED: number;
+      };
+    };
+    onYouTubeIframeAPIReady?: () => void;
+  }
+}
 
 export default function AudioAmbience() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const gainNodeRef = useRef<GainNode | null>(null);
-  const noiseSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const osc1Ref = useRef<OscillatorNode | null>(null);
-  const osc2Ref = useRef<OscillatorNode | null>(null);
+  // Toggle is ON by default as requested
+  const [isPlaying, setIsPlaying] = useState(true);
+  const playerRef = useRef<YTPlayer | null>(null);
+  const isPlayingRef = useRef(true);
 
-  const stopAudio = useCallback(() => {
-    if (gainNodeRef.current && audioCtxRef.current) {
-      gainNodeRef.current.gain.setTargetAtTime(0, audioCtxRef.current.currentTime, 0.5);
-      setTimeout(() => {
-        try {
-          osc1Ref.current?.stop();
-          osc2Ref.current?.stop();
-          noiseSourceRef.current?.stop();
-          audioCtxRef.current?.close();
-        } catch {
-          // ignore cleanup errors
-        }
-        audioCtxRef.current = null;
-      }, 600);
+  // Keep ref in sync for event callbacks
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
+
+  const initPlayer = useCallback(() => {
+    if (!window.YT || !window.YT.Player) return;
+
+    if (playerRef.current) {
+      try {
+        playerRef.current.destroy();
+      } catch {
+        // ignore
+      }
+      playerRef.current = null;
     }
-    setIsPlaying(false);
-  }, []);
 
-  const startAudio = useCallback(async () => {
     try {
-      const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AudioContextClass) return;
+      playerRef.current = new window.YT.Player('youtube-hidden-player', {
+        videoId: YOUTUBE_VIDEO_ID,
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          loop: 1,
+          playlist: YOUTUBE_VIDEO_ID,
+          modestbranding: 1,
+          rel: 0,
+          origin: window.location.origin,
+        },
+        events: {
+          onReady: (event) => {
+            event.target.setVolume(80);
 
-      const ctx = new AudioContextClass();
-      if (ctx.state === 'suspended') {
-        await ctx.resume();
-      }
-      audioCtxRef.current = ctx;
+            // Attempt direct unmuted playback
+            try {
+              event.target.unMute();
+              event.target.playVideo();
+            } catch {
+              // fallback
+            }
 
-      const masterGain = ctx.createGain();
-      masterGain.gain.setValueAtTime(0, ctx.currentTime);
-      masterGain.gain.setTargetAtTime(0.12, ctx.currentTime, 1.2);
-      masterGain.connect(ctx.destination);
-      gainNodeRef.current = masterGain;
+            // Fallback for browsers with strict unmuted autoplay restriction:
+            // start playback immediately (even if browser requires mute first)
+            // and unmute on the very first user interaction
+            const handleFirstGesture = () => {
+              if (isPlayingRef.current && playerRef.current) {
+                try {
+                  playerRef.current.unMute();
+                  playerRef.current.playVideo();
+                } catch {
+                  // ignore
+                }
+              }
+              window.removeEventListener('click', handleFirstGesture);
+              window.removeEventListener('keydown', handleFirstGesture);
+              window.removeEventListener('touchstart', handleFirstGesture);
+            };
 
-      // Low Warm Drone 1 (55Hz - A1)
-      const osc1 = ctx.createOscillator();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(55, ctx.currentTime);
-
-      // Low Drone 2 with slight binaural detune (55.4Hz)
-      const osc2 = ctx.createOscillator();
-      osc2.type = 'triangle';
-      osc2.frequency.setValueAtTime(55.4, ctx.currentTime);
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(140, ctx.currentTime);
-      filter.Q.setValueAtTime(1.8, ctx.currentTime);
-
-      osc1.connect(filter);
-      osc2.connect(filter);
-      filter.connect(masterGain);
-
-      osc1.start();
-      osc2.start();
-      osc1Ref.current = osc1;
-      osc2Ref.current = osc2;
-
-      // Subtle Tape Hiss / Vinyl noise
-      const bufferSize = ctx.sampleRate * 2;
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = (Math.random() * 2 - 1) * 0.015;
-      }
-
-      const whiteNoise = ctx.createBufferSource();
-      whiteNoise.buffer = noiseBuffer;
-      whiteNoise.loop = true;
-
-      const noiseFilter = ctx.createBiquadFilter();
-      noiseFilter.type = 'bandpass';
-      noiseFilter.frequency.setValueAtTime(800, ctx.currentTime);
-      noiseFilter.Q.setValueAtTime(0.8, ctx.currentTime);
-
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.04, ctx.currentTime);
-
-      whiteNoise.connect(noiseFilter);
-      noiseFilter.connect(noiseGain);
-      noiseGain.connect(masterGain);
-
-      whiteNoise.start();
-      noiseSourceRef.current = whiteNoise;
-
-      setIsPlaying(true);
+            window.addEventListener('click', handleFirstGesture, { once: true });
+            window.addEventListener('keydown', handleFirstGesture, { once: true });
+            window.addEventListener('touchstart', handleFirstGesture, { once: true });
+          },
+          onStateChange: (event) => {
+            // Loop video automatically when finished
+            if (window.YT && event.data === window.YT.PlayerState.ENDED) {
+              event.target.playVideo();
+            }
+          },
+        },
+      });
     } catch {
-      setIsPlaying(false);
+      // ignore
     }
   }, []);
 
+  // Load YouTube IFrame API script
+  useEffect(() => {
+    if (window.YT && window.YT.Player) {
+      initPlayer();
+      return;
+    }
+
+    const prevCallback = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = () => {
+      if (prevCallback) prevCallback();
+      initPlayer();
+    };
+
+    if (!document.getElementById('youtube-iframe-api-script')) {
+      const tag = document.createElement('script');
+      tag.id = 'youtube-iframe-api-script';
+      tag.src = 'https://www.youtube.com/iframe_api';
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
+    }
+  }, [initPlayer]);
+
+  // Toggle behavior:
+  // - sound: on -> unMute (sound active)
+  // - sound: off -> mute (silent, but still plays in background!)
   const toggleSound = () => {
+    const player = playerRef.current;
     if (isPlaying) {
-      stopAudio();
+      // Turn sound OFF: mute without pausing
+      if (player) {
+        try {
+          player.mute();
+        } catch {
+          // ignore
+        }
+      }
+      setIsPlaying(false);
     } else {
-      startAudio();
+      // Turn sound ON: unmute
+      if (player) {
+        try {
+          player.unMute();
+          player.playVideo();
+        } catch {
+          // ignore
+        }
+      }
+      setIsPlaying(true);
     }
   };
 
-  useEffect(() => {
-    return () => {
-      try {
-        audioCtxRef.current?.close();
-      } catch {
-        // noop
-      }
-    };
-  }, []);
-
   return (
-    <button
-      id="sound-toggle-btn"
-      onClick={toggleSound}
-      aria-label={isPlaying ? "Matikan suara ambience" : "Nyalakan suara ambience"}
-      className="group flex items-center gap-2 text-xs font-mono tracking-widest text-[#737373] hover:text-[#d4d4d4] transition-colors duration-300 py-1 px-2.5 rounded border border-transparent hover:border-[#262626] bg-transparent focus:outline-none focus:ring-1 focus:ring-[#525252] cursor-pointer"
-    >
-      {isPlaying ? (
-        <Volume2 className="w-3.5 h-3.5 text-[#a3a3a3] animate-pulse" />
-      ) : (
-        <VolumeX className="w-3.5 h-3.5 text-[#525252] group-hover:text-[#8a8a8a]" />
-      )}
-      <span className="select-none lowercase">
-        sound: {isPlaying ? 'on' : 'off'}
-      </span>
-      {isPlaying && (
-        <span className="w-1.5 h-1.5 rounded-full bg-[#a3a3a3] animate-ping ml-0.5" />
-      )}
-    </button>
+    <div className="relative flex items-center select-none">
+      {/* Hidden YouTube Iframe Player */}
+      <div
+        id="youtube-player-wrapper"
+        aria-hidden="true"
+        className="fixed -top-[9999px] -left-[9999px] w-[200px] h-[200px] opacity-0 pointer-events-none z-[-10]"
+      >
+        <div id="youtube-hidden-player" />
+      </div>
+
+      {/* Clean original sound toggle button */}
+      <button
+        id="sound-toggle-btn"
+        onClick={toggleSound}
+        aria-label={isPlaying ? "Matikan suara (silent di latar belakang)" : "Nyalakan suara musik"}
+        className="group flex items-center gap-2 text-xs font-mono tracking-widest text-[#737373] hover:text-[#d4d4d4] transition-colors duration-300 py-1 px-2.5 rounded border border-transparent hover:border-[#262626] bg-transparent focus:outline-none focus:ring-1 focus:ring-[#525252] cursor-pointer"
+      >
+        {isPlaying ? (
+          <Volume2 className="w-3.5 h-3.5 text-[#a3a3a3] animate-pulse" />
+        ) : (
+          <VolumeX className="w-3.5 h-3.5 text-[#525252] group-hover:text-[#8a8a8a]" />
+        )}
+        <span className="select-none lowercase">
+          sound: {isPlaying ? 'on' : 'off'}
+        </span>
+        {isPlaying && (
+          <span className="w-1.5 h-1.5 rounded-full bg-[#a3a3a3] animate-ping ml-0.5" />
+        )}
+      </button>
+    </div>
   );
 }

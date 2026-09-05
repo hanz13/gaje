@@ -11,7 +11,11 @@ Single-page interactive experimental website yang dibuat abstrak, absurd, sediki
 - **Celestial & Doodle Scribbles**: Coretan tangan SVG (lingkaran orbit angkasa, benang kusut, underline, seismograf, dan koordinat Jakarta).
 - **Film Grain & Dust Particles**: Tekstur film grain SVG dan partikel debu melayang yang sangat ringan tanpa library besar.
 - **Atmospheric Photo**: Foto moody 35mm yang ditempel dengan selotip frosted tape dan coretan tangan.
-- **Ambient Sound (Web Audio API)**: Soundscape drone hangat sintetis dan tape hiss tanpa file audio eksternal atau API luar. User dapat menyalakan/mematikan via tombol `sound: off/on`.
+- **Ambient Sound & YouTube Music**:
+  - Terintegrasi dengan pemutar musik YouTube latar belakang menggunakan lagu pilihan: `https://www.youtube.com/watch?v=zn1q6MRocfQ`.
+  - Musik otomatis berputar saat pengunjung membuka halaman dengan toggle dalam posisi default `sound: on`.
+  - Saat diubah ke `sound: off`, audio menjadi **silent/bisu namun tetap terus berputar di latar belakang**. Ketika diaktifkan kembali ke `sound: on`, lagu langsung berlanjut tanpa jeda.
+  - Tampilan tombol tetap bersih dan minimalis tanpa popup atau tombol tambahan.
 - **Easter Eggs**:
   - Klik brand `gaje.lol` berkali-kali untuk memicu respon tersembunyi.
   - Klik area kosong berkali-kali untuk memicu notifikasi `"lu gabut ya?"`.
