@@ -6,6 +6,7 @@ export default function RandomThought() {
   const [fadeState, setFadeState] = useState<'fade-in' | 'fade-out'>('fade-in');
 
   useEffect(() => {
+    // 7-second interval (within 5-8 seconds range) to allow comfortable reading
     const interval = setInterval(() => {
       setFadeState('fade-out');
       setTimeout(() => {
@@ -17,8 +18,8 @@ export default function RandomThought() {
           return next;
         });
         setFadeState('fade-in');
-      }, 700);
-    }, 5500);
+      }, 600);
+    }, 7000);
 
     return () => clearInterval(interval);
   }, []);

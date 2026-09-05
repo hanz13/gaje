@@ -5,7 +5,10 @@ export default function FakeLoading() {
   const directionRef = useRef<'up' | 'down'>('up');
 
   useEffect(() => {
-    // Moves from 0% up to 99%, then steps backwards (98%, 97%, ...) down to 0%, and repeats
+    // Strictly sequential: increments by exactly 1% per second (1000ms) up to 99%,
+    // then decrements by exactly 1% per second down to 0%, without skipping numbers.
+    const INTERVAL_MS = 1000;
+
     const timer = setInterval(() => {
       setProgress((prev) => {
         if (directionRef.current === 'up') {
@@ -22,7 +25,7 @@ export default function FakeLoading() {
           return prev - 1;
         }
       });
-    }, 90);
+    }, INTERVAL_MS);
 
     return () => clearInterval(timer);
   }, []);
@@ -42,9 +45,9 @@ export default function FakeLoading() {
         aria-valuemax={99}
         className="w-48 sm:w-56 h-[10px] sm:h-3 border border-[#333333] bg-[#0c0c0c] p-[2px] relative overflow-hidden shadow-inner"
       >
-        {/* Progress fill */}
+        {/* Progress fill synchronized smoothly with the 1-second cadence */}
         <div
-          className="h-full bg-gradient-to-r from-[#525252] to-[#888888] transition-all duration-100 ease-linear opacity-85"
+          className="h-full bg-gradient-to-r from-[#525252] to-[#888888] transition-all duration-1000 ease-linear opacity-85"
           style={{ width: `${progress}%` }}
         />
         {/* Subtle striped overlay */}
