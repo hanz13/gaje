@@ -6,6 +6,7 @@ import AtmosphericPhoto from './components/AtmosphericPhoto';
 import TapedNote from './components/TapedNote';
 import CustomCursor from './components/CustomCursor';
 import EasterEggToast from './components/EasterEggToast';
+import SoundNoticeModal from './components/SoundNoticeModal';
 import {
   HeadlineUnderline,
   CelestialLoops,
@@ -34,6 +35,7 @@ export default function App() {
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
   const [isGlitching, setIsGlitching] = useState(false);
   const [easterEggMessage, setEasterEggMessage] = useState<string | null>(null);
+  const [showSoundModal, setShowSoundModal] = useState(true);
 
   // Easter egg click counters
   const gajeClickCountRef = useRef(0);
@@ -301,14 +303,22 @@ export default function App() {
           <TargetCrosshair />
         </div>
 
-        {/* Faint existential copyright */}
-        <div className="text-[10px] sm:text-[11px] font-mono text-[#444444] tracking-widest text-center sm:text-left">
+        {/* Faint existential copyright & Mas Han credit */}
+        <div className="text-[10px] sm:text-[11px] font-mono text-[#555555] tracking-widest text-center sm:text-left flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
           <span>ga jelas, tapi somehow indah.</span>
+          <span className="hidden sm:inline text-[#2e2e2e]">/</span>
+          <span className="text-[#888888]">dibuat sama Mas Han</span>
         </div>
 
         {/* Seismograph glitch line and Jakarta coordinates */}
         <SeismographAndCoordinates />
       </footer>
+
+      {/* Pop-up modal notice to enable sound */}
+      <SoundNoticeModal
+        isOpen={showSoundModal}
+        onClose={() => setShowSoundModal(false)}
+      />
     </div>
   );
 }

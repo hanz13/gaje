@@ -46,11 +46,19 @@ export default function AudioAmbience() {
       window.removeEventListener('keydown', handleFirstUserInteraction);
     };
 
+    const handleModalClosed = () => {
+      if (isPlayingRef.current) {
+        sendCommand('unMute');
+        sendCommand('playVideo');
+      }
+    };
+
     window.addEventListener('touchstart', handleFirstUserInteraction, { passive: true });
     window.addEventListener('touchend', handleFirstUserInteraction, { passive: true });
     window.addEventListener('click', handleFirstUserInteraction);
     window.addEventListener('pointerdown', handleFirstUserInteraction, { passive: true });
     window.addEventListener('keydown', handleFirstUserInteraction);
+    window.addEventListener('sound-modal-closed', handleModalClosed);
 
     return () => {
       window.removeEventListener('touchstart', handleFirstUserInteraction);
@@ -58,6 +66,7 @@ export default function AudioAmbience() {
       window.removeEventListener('click', handleFirstUserInteraction);
       window.removeEventListener('pointerdown', handleFirstUserInteraction);
       window.removeEventListener('keydown', handleFirstUserInteraction);
+      window.removeEventListener('sound-modal-closed', handleModalClosed);
     };
   }, [sendCommand]);
 
