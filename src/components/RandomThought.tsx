@@ -1,22 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { RANDOM_THOUGHTS } from '../data/thoughts';
 
+// Fisher-Yates shuffle to create a randomized queue of all thoughts
+function createShuffledDeck(length: number, previousLastIndex?: number): number[] {
+  const deck = Array.from({ length }, (_, i) => i);
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  // Prevent immediate repetition across shuffle cycles
+  if (previousLastIndex !== undefined && deck.length > 1 && deck[0] === previousLastIndex) {
+    [deck[0], deck[deck.length - 1]] = [deck[deck.length - 1], deck[0]];
+  }
+  return deck;
+}
+
 export default function RandomThought() {
+  const deckRef = useRef<number[]>([]);
+  const pointerRef = useRef<number>(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fadeState, setFadeState] = useState<'fade-in' | 'fade-out'>('fade-in');
 
+  // Initialize randomized deck on first mount
   useEffect(() => {
-    // 7-second interval (within 5-8 seconds range) to allow comfortable reading
+    const initialDeck = createShuffledDeck(RANDOM_THOUGHTS.length);
+    deckRef.current = initialDeck;
+    pointerRef.current = 0;
+    setCurrentIndex(initialDeck[0]);
+  }, []);
+
+  useEffect(() => {
+    // 7-second interval to allow comfortable reading
     const interval = setInterval(() => {
       setFadeState('fade-out');
+
       setTimeout(() => {
-        setCurrentIndex((prev) => {
-          let next = Math.floor(Math.random() * RANDOM_THOUGHTS.length);
-          while (next === prev && RANDOM_THOUGHTS.length > 1) {
-            next = Math.floor(Math.random() * RANDOM_THOUGHTS.length);
-          }
-          return next;
-        });
+        if (deckRef.current.length === 0) {
+          deckRef.current = createShuffledDeck(RANDOM_THOUGHTS.length);
+          pointerRef.current = 0;
+        }
+
+        // Advance pointer to the next thought in the queue
+        pointerRef.current += 1;
+
+        // When all thoughts in the deck have appeared once, shuffle a fresh deck
+        if (pointerRef.current >= deckRef.current.length) {
+          const lastShown = deckRef.current[deckRef.current.length - 1];
+          deckRef.current = createShuffledDeck(RANDOM_THOUGHTS.length, lastShown);
+          pointerRef.current = 0;
+        }
+
+        const nextIndex = deckRef.current[pointerRef.current];
+        setCurrentIndex(nextIndex);
         setFadeState('fade-in');
       }, 600);
     }, 7000);
