@@ -157,7 +157,7 @@ export default function AudioAmbience() {
           <VolumeX className="w-3.5 h-3.5 text-[#525252] group-hover:text-[#8a8a8a]" />
         )}
         <span className="select-none lowercase">
-          sound: {isPlaying ? 'on' : 'off'}
+          sound: {isPlaying ? 'on' : 'off'}.
         </span>
         {isPlaying && (
           <span className="w-1.5 h-1.5 rounded-full bg-[#a3a3a3] animate-ping ml-0.5" />
