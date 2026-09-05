@@ -10,7 +10,7 @@ export const RANDOM_THOUGHTS = [
   "capek banget jadi manusia, pengen jadi kucing oren peliharaan orang kaya aja.",
   "ditanya 'kapan nikah?' padahal dapet chat 'p' dari gebetan aja ga pernah.",
   "lagi di fase buka hp, tutup hp, buka lagi, gatau nyari apa.",
-  "energi sosial udah minus dari hari selasa.",
+  "energi sosial udah minus dari hari senin.",
   "berangkat kerja gelap, pulang kerja gelap, masa depan jangan ikut gelap dong.",
   "mental health terancam, fisik remuk, gaji umr, tapi tetep harus pasang muka profesional.",
   "chat cuma di-read padahal last seen-nya 'baru saja'.",
@@ -30,7 +30,7 @@ export const RANDOM_THOUGHTS = [
   "pengen hilang ditelan bumi seminggu tanpa dicari siapapun.",
   "gapapa kalau hari ini ga produktif, bertahan hidup aja udah prestasi.",
   "umur 20-an katanya masa emas, kok rasanya kayak masa kerja paksa.",
-  "kenapa waktu kecil pengen cepet dewasa ya? nyesel banget.",
+  "kenapa waktu kecil pengen cepet dewasa ya? eh pas udah dewasa gini banget.",
   "ga semua orang punya support system, sebagian cuma punya spotify sama rokok sebatang.",
   "rekening tipis, beban hidup tebel, tapi tetep checkout kopi susu 25 ribu.",
   "udah ga punya rasa cemburu, punyanya rasa capek dan pasrah.",
@@ -48,6 +48,15 @@ export const RANDOM_THOUGHTS = [
   "dunia terlalu berisik buat orang yang cuma pengen tenang.",
   "lagi belajar berdamai sama hal-hal yang ga bisa gue kendaliin.",
   "mungkin besok lebih baik. atau enggak. yaudah.",
+  "kakimu gak patah, cuma tergores ranting aja buat terus melangkah.",
+  "terima kasih diri ini udah selalu kuat dari tahun sebelumnya.",
+  "bu... hiduplah lebih panjang lagi umurmu.",
+  "pengen sukses tapi pengen jam tidur juga teratur 8 jam.",
+  "katanya jangan bandingin hidup mulu sama orang lain, tapi algoritma ngasih liat orang yang sukses.",
+  "bisa gak sih kalo tidur sebelum tengah malem.",
+  "udah di fase ya Allah, ya Allah terus.",
+  "hidup jadi WNI se-darderdor gini banget ya nyari duit.",
+  "semoga kita semua masuk surga jalur WNI, karena pemerintah dzalim.",
   "beberapa hal memang ga harus jelas."
 ];
 
