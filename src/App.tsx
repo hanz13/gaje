@@ -211,7 +211,7 @@ export default function App() {
             <div className="space-y-1 text-xs sm:text-sm font-mono tracking-wider text-[#8a8a8a] select-none">
               <p>ini bukan website.</p>
               <p>
-                ini <span className="text-[#bfbfbf] hover:text-white transition-colors cursor-help">perasaan</span>.
+                tapi <span className="text-[#bfbfbf] hover:text-white transition-colors cursor-help">isi kepala</span>.
               </p>
               <p className="text-[#4f4f4f] tracking-[0.25em] text-[10px] sm:text-xs pt-1">
                 .....
@@ -307,7 +307,7 @@ export default function App() {
         <div className="text-[10px] sm:text-[11px] font-mono text-[#555555] tracking-widest text-center sm:text-left flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
           <span>ga jelas, tapi somehow indah.</span>
           <span className="hidden sm:inline text-[#2e2e2e]">/</span>
-          <span className="text-[#888888]">dibuat sama Mas Han</span>
+          <span className="text-[#888888]">dibuat sama Mas Han.</span>
         </div>
 
         {/* Seismograph glitch line and Jakarta coordinates */}
