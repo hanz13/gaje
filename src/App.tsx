@@ -17,16 +17,23 @@ import {
 } from './components/DoodleScribbles';
 
 const FEELING_OPTIONS = [
-  'kesepian.',
+  'overthinking.',
   'capek.',
   'hampa.',
   'kosong.',
+  'insecure.',
+  'burnout.',
   'bingung.',
+  'kesepian.',
+  'mati rasa.',
   'entahlah.',
   'biasa aja.',
   'patah hati.',
   'campur aduk.',
-  'ya gitu deh.'
+  'krisis ekstensi.', 
+  'kelelahan emosi.',
+  'merasa ditinggalkan.',
+  'yaudah gitu aja deh.'
   
 ];
 
