@@ -33,7 +33,7 @@ export default function FakeLoading() {
   return (
     <div id="fake-loading-section" className="flex flex-col items-center select-none text-center">
       <p className="text-xs font-mono tracking-widest text-[#737373] mb-2.5">
-        loading perasaan ...
+        loading isi kepala sama perasaan ...
       </p>
 
       {/* Retro / distressed bar container */}
