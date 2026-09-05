@@ -17,12 +17,12 @@ import {
 } from './components/DoodleScribbles';
 
 const FEELING_OPTIONS = [
-  'entahlah.',
+  'kesepian.',
   'capek.',
   'hampa.',
-  'kesepian.',
   'kosong.',
   'bingung.',
+  'entahlah.',
   'biasa aja.',
   'patah hati.',
   'campur aduk.',
