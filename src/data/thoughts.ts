@@ -50,13 +50,16 @@ export const RANDOM_THOUGHTS = [
   "mungkin besok lebih baik. atau enggak. yaudah.",
   "kakimu gak patah, cuma tergores ranting aja buat terus melangkah.",
   "terima kasih diri ini udah selalu kuat dari tahun sebelumnya.",
-  "bu... hiduplah lebih panjang lagi umurmu.",
+  "bu... hiduplah lebih panjang lagi umurnya.",  
+  "terima kasih kamu pernah hadir, senang bisa mengenalmu.",
+  "pakai mata ga cuma buat liat baiknya orang lain, tapi liat juga aib diri sendiri.",
+  "pengen bisa marathon film lagi, dah capek liat drama orang melulu di real life.",
   "pengen sukses tapi pengen jam tidur juga teratur 8 jam.",
   "katanya jangan bandingin hidup mulu sama orang lain, tapi algoritma ngasih liat orang yang sukses.",
   "bisa gak sih kalo tidur sebelum tengah malem.",
   "udah di fase ya Allah, ya Allah terus.",
   "hidup jadi WNI se-darderdor gini banget ya nyari duit.",
-  "semoga kita semua masuk surga jalur WNI, karena pemerintah dzalim.",
+  "semoga kita semua masuk surga jalur WNI, karena capek liat kelakuan pemerintah.",
   "beberapa hal memang ga harus jelas."
 ];
 
