@@ -1,4 +1,4 @@
-# gaje.lol — ini bukan website. ini cuma perasaan.
+# gaje.lol — ini bukan website. tapi cuma isi kepala.
 
 Single-page interactive experimental website yang dibuat abstrak, absurd, sedikit melancholic, dark, mysterious, dan terasa seperti halaman internet pribadi yang ditemukan secara tidak sengaja pada tengah malam (02:37 AM).
 
