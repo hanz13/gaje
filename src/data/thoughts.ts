@@ -64,7 +64,9 @@ export const RANDOM_THOUGHTS = [
   "kita disuruh punya mimpi besar, tapi hidup sehari-hari terasa mahal.",
   "semoga kita semua masuk surga jalur WNI, karena capek liat kelakuan pemerintah.",
   "hidup jadi WNI se-darderdor gini banget ya nyari duit.",
-  "beberapa hal memang ga harus jelas."
+  "dulu pengen cepet jadi dewasa, tapi sekarang pas dewasa pengen balik jadi anak-anak.",
+  "pengen banget bisa banggain ortu, tapi kadang masih belum bangga sama diri sendiri.",
+  "ada beberapa hal yang emang ga harus jelas."
 ];
 
 export const RANDOM_NUMBERS_LIST = [
