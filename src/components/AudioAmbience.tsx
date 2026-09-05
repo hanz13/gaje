@@ -2,184 +2,137 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 import { YOUTUBE_VIDEO_ID } from '../data/music';
 
-interface YTPlayer {
-  playVideo: () => void;
-  pauseVideo: () => void;
-  mute: () => void;
-  unMute: () => void;
-  isMuted: () => boolean;
-  setVolume: (volume: number) => void;
-  getPlayerState: () => number;
-  destroy: () => void;
-}
-
-declare global {
-  interface Window {
-    YT: {
-      Player: new (
-        elementId: string,
-        config: {
-          videoId: string;
-          playerVars?: Record<string, unknown>;
-          events?: {
-            onReady?: (event: { target: YTPlayer }) => void;
-            onStateChange?: (event: { data: number; target: YTPlayer }) => void;
-            onError?: (event: unknown) => void;
-          };
-        }
-      ) => YTPlayer;
-      PlayerState: {
-        PLAYING: number;
-        ENDED: number;
-      };
-    };
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
-
 export default function AudioAmbience() {
-  // Toggle is ON by default as requested
   const [isPlaying, setIsPlaying] = useState(true);
-  const playerRef = useRef<YTPlayer | null>(null);
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const isPlayingRef = useRef(true);
 
-  // Keep ref in sync for event callbacks
   useEffect(() => {
     isPlayingRef.current = isPlaying;
   }, [isPlaying]);
 
-  const initPlayer = useCallback(() => {
-    if (!window.YT || !window.YT.Player) return;
-
-    if (playerRef.current) {
+  // Send instantaneous commands to the YouTube iframe via postMessage
+  const sendCommand = useCallback((func: string, args: unknown[] = []) => {
+    const iframe = iframeRef.current;
+    if (iframe && iframe.contentWindow) {
       try {
-        playerRef.current.destroy();
+        iframe.contentWindow.postMessage(
+          JSON.stringify({
+            event: 'command',
+            func,
+            args,
+          }),
+          '*'
+        );
       } catch {
-        // ignore
+        // ignore cross-origin errors if any
       }
-      playerRef.current = null;
-    }
-
-    try {
-      playerRef.current = new window.YT.Player('youtube-hidden-player', {
-        videoId: YOUTUBE_VIDEO_ID,
-        playerVars: {
-          autoplay: 1,
-          controls: 0,
-          disablekb: 1,
-          fs: 0,
-          loop: 1,
-          playlist: YOUTUBE_VIDEO_ID,
-          modestbranding: 1,
-          rel: 0,
-          origin: window.location.origin,
-        },
-        events: {
-          onReady: (event) => {
-            event.target.setVolume(80);
-
-            // Attempt direct unmuted playback
-            try {
-              event.target.unMute();
-              event.target.playVideo();
-            } catch {
-              // fallback
-            }
-
-            // Fallback for browsers with strict unmuted autoplay restriction:
-            // start playback immediately (even if browser requires mute first)
-            // and unmute on the very first user interaction
-            const handleFirstGesture = () => {
-              if (isPlayingRef.current && playerRef.current) {
-                try {
-                  playerRef.current.unMute();
-                  playerRef.current.playVideo();
-                } catch {
-                  // ignore
-                }
-              }
-              window.removeEventListener('click', handleFirstGesture);
-              window.removeEventListener('keydown', handleFirstGesture);
-              window.removeEventListener('touchstart', handleFirstGesture);
-            };
-
-            window.addEventListener('click', handleFirstGesture, { once: true });
-            window.addEventListener('keydown', handleFirstGesture, { once: true });
-            window.addEventListener('touchstart', handleFirstGesture, { once: true });
-          },
-          onStateChange: (event) => {
-            // Loop video automatically when finished
-            if (window.YT && event.data === window.YT.PlayerState.ENDED) {
-              event.target.playVideo();
-            }
-          },
-        },
-      });
-    } catch {
-      // ignore
     }
   }, []);
 
-  // Load YouTube IFrame API script
+  // Ensure playback starts on mobile / strict browsers on the first user interaction
   useEffect(() => {
-    if (window.YT && window.YT.Player) {
-      initPlayer();
-      return;
-    }
-
-    const prevCallback = window.onYouTubeIframeAPIReady;
-    window.onYouTubeIframeAPIReady = () => {
-      if (prevCallback) prevCallback();
-      initPlayer();
+    const handleFirstUserInteraction = () => {
+      if (isPlayingRef.current) {
+        sendCommand('unMute');
+        sendCommand('playVideo');
+      }
+      // Remove listeners once interacted
+      window.removeEventListener('touchstart', handleFirstUserInteraction);
+      window.removeEventListener('touchend', handleFirstUserInteraction);
+      window.removeEventListener('click', handleFirstUserInteraction);
+      window.removeEventListener('pointerdown', handleFirstUserInteraction);
+      window.removeEventListener('keydown', handleFirstUserInteraction);
     };
 
-    if (!document.getElementById('youtube-iframe-api-script')) {
-      const tag = document.createElement('script');
-      tag.id = 'youtube-iframe-api-script';
-      tag.src = 'https://www.youtube.com/iframe_api';
-      const firstScriptTag = document.getElementsByTagName('script')[0];
-      firstScriptTag?.parentNode?.insertBefore(tag, firstScriptTag);
+    window.addEventListener('touchstart', handleFirstUserInteraction, { passive: true });
+    window.addEventListener('touchend', handleFirstUserInteraction, { passive: true });
+    window.addEventListener('click', handleFirstUserInteraction);
+    window.addEventListener('pointerdown', handleFirstUserInteraction, { passive: true });
+    window.addEventListener('keydown', handleFirstUserInteraction);
+
+    return () => {
+      window.removeEventListener('touchstart', handleFirstUserInteraction);
+      window.removeEventListener('touchend', handleFirstUserInteraction);
+      window.removeEventListener('click', handleFirstUserInteraction);
+      window.removeEventListener('pointerdown', handleFirstUserInteraction);
+      window.removeEventListener('keydown', handleFirstUserInteraction);
+    };
+  }, [sendCommand]);
+
+  // When the iframe is ready / loaded
+  const handleIframeLoad = () => {
+    setIsIframeLoaded(true);
+
+    // Initial handshake & trigger immediate unmuted playback
+    sendCommand('listening');
+    sendCommand('setVolume', [85]);
+
+    // Multiple kickstarts to eliminate any browser / iframe buffer delay
+    sendCommand('playVideo');
+    if (isPlayingRef.current) {
+      sendCommand('unMute');
+      sendCommand('playVideo');
     }
-  }, [initPlayer]);
+
+    // Safety repeat after 400ms to guarantee YouTube internal player caught the command
+    setTimeout(() => {
+      if (isPlayingRef.current) {
+        sendCommand('unMute');
+        sendCommand('playVideo');
+      }
+    }, 400);
+
+    setTimeout(() => {
+      if (isPlayingRef.current) {
+        sendCommand('unMute');
+        sendCommand('playVideo');
+      }
+    }, 1200);
+  };
 
   // Toggle behavior:
-  // - sound: on -> unMute (sound active)
-  // - sound: off -> mute (silent, but still plays in background!)
+  // - sound: on -> unMute & play
+  // - sound: off -> mute (silent, continues playing in background!)
   const toggleSound = () => {
-    const player = playerRef.current;
     if (isPlaying) {
       // Turn sound OFF: mute without pausing
-      if (player) {
-        try {
-          player.mute();
-        } catch {
-          // ignore
-        }
-      }
+      sendCommand('mute');
       setIsPlaying(false);
     } else {
       // Turn sound ON: unmute
-      if (player) {
-        try {
-          player.unMute();
-          player.playVideo();
-        } catch {
-          // ignore
-        }
-      }
+      sendCommand('unMute');
+      sendCommand('playVideo');
       setIsPlaying(true);
     }
   };
 
+  const originUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const embedUrl = `https://www.youtube.com/embed/${YOUTUBE_VIDEO_ID}?enablejsapi=1&autoplay=1&mute=0&controls=0&playsinline=1&loop=1&playlist=${YOUTUBE_VIDEO_ID}&origin=${encodeURIComponent(originUrl)}`;
+
   return (
     <div className="relative flex items-center select-none">
-      {/* Hidden YouTube Iframe Player */}
+      {/* 
+        Embedded YouTube Iframe:
+        Placed at 1px size inside viewport (bottom: 0, right: 0, opacity: 0.01)
+        This prevents iOS/Android from throttling it as "offscreen / inactive",
+        while remaining totally invisible to the user.
+      */}
       <div
-        id="youtube-player-wrapper"
+        id="youtube-player-container"
         aria-hidden="true"
-        className="fixed -top-[9999px] -left-[9999px] w-[200px] h-[200px] opacity-0 pointer-events-none z-[-10]"
+        className="fixed bottom-0 right-0 w-[1px] h-[1px] opacity-[0.01] pointer-events-none overflow-hidden z-[-1]"
       >
-        <div id="youtube-hidden-player" />
+        <iframe
+          ref={iframeRef}
+          id="youtube-player-iframe"
+          title="background ambient audio"
+          src={embedUrl}
+          onLoad={handleIframeLoad}
+          allow="autoplay; encrypted-media; gyroscope; picture-in-picture"
+          className="w-[120px] h-[120px] border-0"
+        />
       </div>
 
       {/* Clean original sound toggle button */}
@@ -190,7 +143,7 @@ export default function AudioAmbience() {
         className="group flex items-center gap-2 text-xs font-mono tracking-widest text-[#737373] hover:text-[#d4d4d4] transition-colors duration-300 py-1 px-2.5 rounded border border-transparent hover:border-[#262626] bg-transparent focus:outline-none focus:ring-1 focus:ring-[#525252] cursor-pointer"
       >
         {isPlaying ? (
-          <Volume2 className="w-3.5 h-3.5 text-[#a3a3a3] animate-pulse" />
+          <Volume2 className={`w-3.5 h-3.5 text-[#a3a3a3] ${isIframeLoaded ? 'animate-pulse' : 'opacity-70'}`} />
         ) : (
           <VolumeX className="w-3.5 h-3.5 text-[#525252] group-hover:text-[#8a8a8a]" />
         )}
