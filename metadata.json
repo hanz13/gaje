@@ -1,0 +1,6 @@
+{
+  "name": "gaje.lol",
+  "description": "tempat kecil buat pikiran yang lagi ga jelas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
