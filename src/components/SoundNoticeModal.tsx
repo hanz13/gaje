@@ -35,7 +35,7 @@ export default function SoundNoticeModal({ isOpen, onClose }: SoundNoticeModalPr
 
         {/* Message text without speaker icon */}
         <p className="text-xs sm:text-[13px] text-[#cccccc] leading-relaxed tracking-wide mt-2 mb-6 text-center">
-          hai kamu, ini web isinya ngeluarin isi keresahan yang ada di kepala. maafin kalau gaje karena sesuai nama webnya kan wkwk
+          hai kamu, ini isinya ngeluarin keresahan yang ada di kepala aja. maafin kalau gaje karena sesuai nama webnya kan wkwk
         </p>
 
         {/* Minimalist close action button */}
