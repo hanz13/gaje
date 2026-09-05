@@ -41,7 +41,9 @@ export default function RandomThought() {
       <div className="space-y-1 text-xs font-mono text-[#888888] tracking-wide select-none">
         <p>hidup gaje.</p>
         <p>masa depan gaje.</p>
+        <p>kisah cinta gaje.</p>
         <p>semuanya gaje.</p>
+        <p>terus mau gimana?</p>
       </div>
 
       <div className="my-2.5 h-[1px] bg-[#1a1a1a]" />
