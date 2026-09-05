@@ -59,7 +59,11 @@ export const RANDOM_THOUGHTS = [
   "bisa gak sih kalo tidur sebelum tengah malem.",
   "udah di fase ya Allah, ya Allah terus.",
   "hidup jadi WNI se-darderdor gini banget ya nyari duit.",
+  "dulu capek terus istirahat membaik, sekarang istirahat pun tetep berasa capek.",
+  "nggak sedih, nggak bahagia, tapi rasanya kek yaudah gitu aja.",
+  "kita disuruh punya mimpi besar, tapi hidup sehari-hari terasa mahal.",
   "semoga kita semua masuk surga jalur WNI, karena capek liat kelakuan pemerintah.",
+  "hidup jadi WNI se-darderdor gini banget ya nyari duit.",
   "beberapa hal memang ga harus jelas."
 ];
 
